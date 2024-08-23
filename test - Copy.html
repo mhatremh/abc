@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPMSolution Test Series Quiz</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #ff9933, #ffffff, #138808), url('https://www.mapsofindia.com/ci-moi-images/my-india/2018/06/WhatsApp-Image-2022-05-13-at-9.38.13-PM.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #quiz-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease-in-out;
+        }
+        #quiz-container:hover {
+            transform: scale(1.02);
+        }
+        .question {
+            font-weight: bold;
+            color: #ff5733;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        .options {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .option-button {
+            display: block;
+            background-color: #28a745;
+            border: none;
+            text-align: center;
+            color: white;
+            padding: 12px 25px;
+            margin: 8px 0;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 18px;
+        }
+        .option-button:hover {
+            background-color: #218838;
+        }
+        #timer, #total-timer {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #ff5733;
+        }
+        #result {
+            display: none;
+            font-size: 20px;
+            color: #138808;
+            text-align: center;
+        }
+        #thank-you {
+            font-size: 22px;
+            margin-top: 20px;
+        }
+        .whatsapp-link {
+            display: block;
+            margin-top: 14px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .whatsapp-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <div id="welcome">
+            <h1>Welcome to IPM Solutions Test Series!</h1>
+            <p>Subject: General Intelligence</p>
+            <p>Test for students from 6 standard onward students.</p>
+            <p id="start-time"></p>
+            <p id="end-time"></p>
+        </div>
+        <div id="total-timer">Total Time Remaining: <span id="total-timer-count">150</span> seconds</div>
+        <div id="timer">Time remaining for this question: <span id="timer-count">15</span> seconds</div>
+        <div id="quiz"></div>
+        <div id="result"></div>
+        <div id="thank-you"></div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "What is the chemical symbol for Water?", a: ["H2O", "CO2", "NaCl", "O2"], correct: 0 },
+            { q: "Who wrote 'Romeo and Juliet'?", a: ["William Shakespeare", "Charles Dickens", "J.K. Rowling", "Mark Twain"], correct: 0 },
+            // Add other questions here...
+        ];
+
+        const quizStartTime = new Date('2024-08-24T10:00:00'); // Set your desired start date and time
+        const quizEndTime = new Date('2024-08-24T12:00:00'); // Set your desired end date and time
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval;
+        let totalTimerInterval;
+        let questionTime = 30;
+        let totalTime = (quizEndTime - quizStartTime) / 1000; // Total quiz time in seconds
+
+        function updateTimes() {
+            document.getElementById('start-time').innerText = `Quiz Start Time: ${quizStartTime.toLocaleString()}`;
+            document.getElementById('end-time').innerText = `Quiz End Time: ${quizEndTime.toLocaleString()}`;
+        }
+
+        function startTotalTimer() {
+            let seconds = totalTime;
+            document.getElementById("total-timer-count").innerText = seconds;
+
+            totalTimerInterval = setInterval(() => {
+                const now = new Date();
+                if (now >= quizEndTime) {
+                    clearInterval(totalTimerInterval);
+                    showResult();
+                    return;
+                }
+                seconds = Math.max(0, Math.floor((quizEndTime - now) / 1000));
+                document.getElementById("total-timer-count").innerText = seconds;
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestionIndex];
+            const quizElement = document.getElementById("quiz");
+            quizElement.innerHTML = `
+                <div class="question">${question.q}</div>
+                <div class="options">
+                    ${question.a.map((option, index) => `
+                        <button class="option-button" onclick="selectOption(${index})">${option}</button>
+                    `).join('')}
+                </div>
+            `;
+            startTimer();
+        }
+
+        function startTimer() {
+            let seconds = questionTime;
+            document.getElementById("timer-count").innerText = seconds;
+
+            timerInterval = setInterval(() => {
+                seconds--;
+                document.getElementById("timer-count").innerText = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function selectOption(selected) {
+            clearInterval(timerInterval);
+            if (selected === questions[currentQuestionIndex].correct) {
+                score++;
+            }
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById("quiz").style.display = 'none';
+            document.getElementById("timer").style.display = 'none';
+            document.getElementById("total-timer").style.display = 'none';
+            document.getElementById("result").innerText = `Quiz completed! Your score is ${score} out of ${questions.length}.`;
+            document.getElementById("result").style.display = 'block';
+            document.getElementById("thank-you").innerHTML = `
+                <p>Thank you for taking the quiz!</p>
+                <a href="https://chat.whatsapp.com/J1gWODmMvP221vGlLxOBqG" class="whatsapp-link">Join our WhatsApp group for more quizzes</a>
+            `;
+        }
+
+        function initializeQuiz() {
+            const now = new Date();
+            if (now < quizStartTime) {
+                document.getElementById("quiz-container").innerHTML = `
+                    <h1>The quiz will start at ${quizStartTime.toLocaleString()}</h1>
+                    <p>Please wait until the quiz begins.</p>
+                `;
+                const countdownInterval = setInterval(() => {
+                    const now = new Date();
+                    if (now >= quizStartTime) {
+                        clearInterval(countdownInterval);
+                        document.getElementById("quiz-container").innerHTML = `
+                            <h1>Quiz has started!</h1>
+                        `;
+                        startTotalTimer();
+                        showQuestion();
+                    }
+                }, 1000);
+            } else if (now >= quizEndTime) {
+                showResult();
+            } else {
+                updateTimes();
+                startTotalTimer();
+                showQuestion();
+            }
+        }
+
+        initializeQuiz();
+    </script>
+</body>
+</html>
